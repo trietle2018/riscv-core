@@ -78,15 +78,16 @@ endtask
 
     // TODO: tests 1–5 from your plan, using the tasks
 	$display("TEST 1: dual-port read");
-    	write_reg(1,32'hAAAAAAAA,1);
 	write_reg(2,32'hDEADBEEF,1);
-	write_reg(3,32'hCCCCCCCC,1);
-	write_reg(4,32'hDDDDDDDD,1);
 	write_reg(5,32'h12345678,1);
-	
 	check_read(5,2);
 	check_read(2,5);
-
+	
+	$display("TEST 2: write to reg 0");
+	write_reg(0,32'hDEADDEAD,1);
+	check_read(0,2);
+	check_read(2,0);
+	
     // TODO: print summary: PASS if errors == 0, else FAIL
     $display("total runs: %0d checks, %0d errors", checks, errors);
     if (errors == 0) 
