@@ -88,6 +88,11 @@ endtask
 	check_read(0,2);
 	check_read(2,0);
 	
+	$display("TEST 3: testing write enable");
+	write_reg(10,32'hAAAAAAAA,1);
+	write_reg(10,32'hBBBBBBBB,0);
+	check_read(10,10);
+
     // TODO: print summary: PASS if errors == 0, else FAIL
     $display("total runs: %0d checks, %0d errors", checks, errors);
     if (errors == 0) 
