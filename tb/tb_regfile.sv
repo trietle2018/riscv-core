@@ -36,6 +36,10 @@ module tb_regfile;          // ← no ports: a testbench is the top level
 	logic [31:0] model [31:0];
 	int errors = 0;
 	int checks = 0;
+	logic [31:0]rand_wd;
+	logic rand_we;
+	logic [4:0]rand_wa;
+
 
   // ---- 5. Helper tasks ----
   // TODO: task write_reg(addr, data, en): drive inputs on negedge, wait for posedge, update model
@@ -104,6 +108,18 @@ endtask
 	model[wa] = wd;
 	check_read(4,4);
 
+	$display("TEST 5: checking random");
+	for (int i = 1; i < 32; i++)
+		write_reg(i,$urandom,1);
+
+	repeat (5000) begin
+		rand_we = $urandom %2;
+		rand_wa = $urandom %32;
+		rand_wd = $urandom;
+		write_reg(rand_wa,rand_wd,rand_we);
+		check_read($urandom %32, $urandom %32);
+
+	end
     // TODO: print summary: PASS if errors == 0, else FAIL
     $display("total runs: %0d checks, %0d errors", checks, errors);
     if (errors == 0) 
