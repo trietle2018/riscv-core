@@ -59,3 +59,40 @@ Why: the directed tests only check a few cases. This tries thousands of combinat
 
 Pass criteria
 The testbench prints 0 errors and TB_REGFILE PASS
+
+
+## Results
+
+|     Date      | Checks | Errors | Pass? |
+|------|--------|--------|--------|       |
+| 2026-11-27    |  5007  |   0    |  Yes  |
+
+### Mutation tests (checking that the testbench can fail)
+
+I broke the design on purpose to make sure the tests catch real bugs:
+
+| Bug I added | Caught by | Result |
+|---|---|---|
+| `rd2` reads with `ra1` instead of `ra2` | Test 1, Test 2 | FAIL (as expected) |
+| Removed `we` from the write condition | Test 3 | FAIL (as expected) |
+
+After each one I restored the design with `git restore` and the tests passed again.
+
+## Synthesis check: reset vs no reset
+
+I synthesized the register file with Yosys (`synth_xilinx`) twice, once as designed
+(no reset) and once with a reset that clears all registers.
+
+| | No reset | With reset |
+|---|---|---|
+| LUTRAM (RAM32M) | 12 | 0 |
+| Flip-flops (FDRE) | 0 | 992 |
+| LUTs | 65 | 757 |
+
+Without a reset, Yosys puts the registers in LUTRAM. With a reset it has to use a
+flip-flop for every bit (31 × 32 = 992; x0 is removed because it's never read) plus
+a lot of extra LUTs for the read muxes. That's about 11× more logic, so I left the
+reset out. RISC-V doesn't require the registers to be reset, since software writes
+a register before reading it.
+
+I'll confirm these numbers with Vivado when I get to the FPGA.
