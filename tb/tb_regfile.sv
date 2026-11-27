@@ -92,6 +92,17 @@ endtask
 	write_reg(10,32'hAAAAAAAA,1);
 	write_reg(10,32'hBBBBBBBB,0);
 	check_read(10,10);
+	
+	$display("TEST 4: read-during-write test");
+	write_reg(4,32'hAAAAAAAA,1);
+	@(negedge clk);
+	we = 1;	wa = 4; wd = 32'hBBBBBBBB;
+	check_read(4,4);
+	@(posedge clk);
+	#1;
+	we = 0;
+	model[wa] = wd;
+	check_read(4,4);
 
     // TODO: print summary: PASS if errors == 0, else FAIL
     $display("total runs: %0d checks, %0d errors", checks, errors);
